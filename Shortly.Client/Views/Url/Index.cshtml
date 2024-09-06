@@ -1,14 +1,26 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "All Short Links";
 }
 
-@{
-    var currentDateTime = DateTime.UtcNow;
-}
+<div class="container">
+    <a class="btn btn-outline-success"
+       asp-controller="Home"
+       asp-action="Index">
+       Add New
+   </a>
+</div>
 
-<h4>Welcome to Sortly</h4>
-<p>@currentDateTime.Date</p>
-<p>@currentDateTime.ToLocalTime()</p>
-<p>@currentDateTime.DayOfWeek.ToString()</p>
+<div class="container">
+    <table class="table table-stripped">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                    <th scope="col">Original Link </th>
+                        <th scope="col"></th>
+                            <th scope="col">#/th>
+                                <th scope="col">#/th>
+                                    <th scope="col">#/th>
+            </tr>
+        </thead>
+    </table>
+</div>

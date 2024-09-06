@@ -8,5 +8,10 @@ namespace Shortly.Client.Controllers
         {
             return View();
         }
+
+        public IActionResult Create()
+        {
+            return RedirectToAction("Index");
+        }
     }
 }
