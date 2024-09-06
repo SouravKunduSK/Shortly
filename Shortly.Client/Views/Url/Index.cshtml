@@ -14,13 +14,25 @@
     <table class="table table-stripped">
         <thead>
             <tr>
-                <th scope="col"></th>
-                    <th scope="col">Original Link </th>
-                        <th scope="col"></th>
-                            <th scope="col">#/th>
-                                <th scope="col">#/th>
-                                    <th scope="col">#/th>
+                <th scope="col">#</th>
+                <th scope="col">Original Link </th>
+                <th scope="col">Shortened Link</th>
+                <th scope="col">Number of Clicks</th>
+                <th scope="col">User</th>
+                <th scope="col">Options</th>
             </tr>
         </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>https://original.com</td>
+                <td>shortly.ertr</td>
+                <td>3</td>
+                <td>Jhon Doe</td>
+                <td>
+                    <a class="btn btn-outline-danger" asp-controller="Url" asp-action="Remove">Remove</a>
+                </td>
+            </tr>
+        </tbody>
     </table>
 </div>
