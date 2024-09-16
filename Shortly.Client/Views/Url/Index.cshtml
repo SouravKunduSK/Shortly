@@ -30,7 +30,11 @@
                 <td>3</td>
                 <td>Jhon Doe</td>
                 <td>
-                    <a class="btn btn-outline-danger" asp-controller="Url" asp-action="Remove">Remove</a>
+                    <a class="btn btn-outline-danger" 
+                    asp-controller="Url" 
+                    asp-action="Remove"
+                    asp-route-linkIdToRemove="id">
+                    Remove</a>
                 </td>
             </tr>
         </tbody>
