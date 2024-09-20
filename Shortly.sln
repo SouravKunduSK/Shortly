@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33414.496
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shortly.Client", "Shortly.Client\Shortly.Client.csproj", "{CDD805B7-C097-4547-AFA2-CAED7D314D86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shortly.Client", "Shortly.Client\Shortly.Client.csproj", "{CDD805B7-C097-4547-AFA2-CAED7D314D86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shortly.Redirect", "Shortly.Redirect\Shortly.Redirect.csproj", "{4BF380FB-359C-4CDB-9C74-4CB3083E3832}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shortly.Redirect", "Shortly.Redirect\Shortly.Redirect.csproj", "{4BF380FB-359C-4CDB-9C74-4CB3083E3832}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shortly.Data", "Shortly.Data\Shortly.Data.csproj", "{CECE56A4-3CF1-48C1-B1C1-7FBA92455321}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shortly.Data", "Shortly.Data\Shortly.Data.csproj", "{CECE56A4-3CF1-48C1-B1C1-7FBA92455321}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
