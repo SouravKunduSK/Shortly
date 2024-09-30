@@ -1,6 +1,49 @@
-﻿@{
+﻿@model PostUrlVM
+
+@{
     ViewData["Title"] = "Welcome to Shortly!";
 }
+
+@{
+    if (TempData["Message"] != null)
+    {
+        <div class="container">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success!</strong> @TempData["Message"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    if (TempData["ErrMessage"] != null)
+    {
+        <div class="container">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Sorry!</strong> @TempData["ErrMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+    if (TempData["EmailConfirmation"] != null)
+    {
+        <div class="container">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success!</strong> @TempData["EmailConfirmation"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+
+    if (TempData["EmailConfirmationVerified"] != null)
+    {
+        <div class="container">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success!</strong> @TempData["EmailConfirmationVerified"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+    }
+}
+
 
 <section class="landing py-5">
     <div class="container">
@@ -21,10 +64,17 @@
 <section class="features" id="features">
     <div class="container">
         <div class="url-shorten-feature">
-            <form class="url-shorten-form" id="url-shorten-form">
+            <form class="url-shorten-form" id="url-shorten-form"
+            asp-controller="Home"
+                  asp-action="ShortenUrl">
             <div>
-                <input type="text" class="url-input" name="urlToShorten" placeholder="Enter the link here..." />
-                <span class="alert"></span>
+                <input
+                    asp-for="Url"
+                    type="text" 
+                    class="url-input"
+                    placeholder="Enter the link here..."
+                    autocomplete="off"/>
+                <span asp-validation-for="Url" class="text-white"></span>
             </div>    
             <button type="submit" class="btn btn-lg" style="">Shorten It!</button>
             </form>
