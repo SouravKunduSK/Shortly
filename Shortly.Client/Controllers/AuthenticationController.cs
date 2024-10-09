@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Microsoft.EntityFrameworkCore;
 using Shortly.Client.Data.ViewModels;
+using Shortly.Client.Helpers.Roles;
+using Shortly.Data;
 using Shortly.Data.Models;
 using Shortly.Data.Services;
 
@@ -33,12 +35,12 @@ namespace Shortly.Client.Controllers
         
         public async Task<IActionResult> Login()
         {
-            /* var loginVM = new LoginVM()
+             var loginVM = new LoginVM()
              {
                  Schemes = await _signInManager.GetExternalAuthenticationSchemesAsync()
-             };*/
+             };
 
-            return View(new LoginVM());
+            return View(loginVM);
         }
         
         public async Task<IActionResult> LoginSubmitted(LoginVM loginVM)
@@ -71,7 +73,7 @@ namespace Shortly.Client.Controllers
 
                     else
                     {
-                        ModelState.AddModelError("", "Invalid login attempt. Please, check your username and password");
+                        ModelState.AddModelError("", "Invalid login attempt. Please, check your username and password!");
                         return View("Login", loginVM);
                     }
                 }
@@ -94,9 +96,56 @@ namespace Shortly.Client.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-        public IActionResult Register()
+        public async Task<IActionResult> Logout()
         {
-            return View();
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
+        }
+
+         public async Task<IActionResult> Register()
+        {
+            return View(new RegisterVM());
+        }
+
+        public async Task<IActionResult> RegisterUser(RegisterVM registerVM)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("Register", registerVM);
+            }
+
+            //Check if the user exists
+            var user = await _userManager.FindByEmailAsync(registerVM.EmailAddress);
+            if (user != null)
+            {
+                ModelState.AddModelError("", "Email address is already in use.");
+                return View("Register", registerVM);
+            }
+
+            var newUser = new AppUser()
+            {
+                Email = registerVM.EmailAddress,
+                UserName = registerVM.EmailAddress,
+                FullName = registerVM.FullName,
+                LockoutEnabled = true
+
+            };
+            var userCreated = await _userManager.CreateAsync(newUser, registerVM.Password);
+            if (userCreated.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(newUser, Role.User);
+                //Login the user
+                await _signInManager.PasswordSignInAsync(newUser, registerVM.Password, false, false);
+            }
+            else
+            {
+                foreach (var error in userCreated.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+                return View("Register", registerVM);
+            }
+            return RedirectToAction("Index", "Home");
         }
     }
 }

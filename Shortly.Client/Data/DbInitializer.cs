@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Shortly.Client.Helpers.Roles;
 using Shortly.Data.Models;
+using Shortly.Data;
 
 namespace Shortly.Client.Data
 {

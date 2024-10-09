@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Shortly.Client.Helpers.Roles
+@model List<GetUrlVM>;
+@{
     ViewData["Title"] = "All Short Links";
 }
 
@@ -18,25 +20,36 @@
                 <th scope="col">Original Link </th>
                 <th scope="col">Shortened Link</th>
                 <th scope="col">Number of Clicks</th>
-                <th scope="col">User</th>
+                @if (User.IsInRole(Role.Admin))
+                {
+                    <th scope="col">User</th>
+                }
                 <th scope="col">Options</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>1</td>
-                <td>https://original.com</td>
-                <td>shortly.ertr</td>
-                <td>3</td>
-                <td>Jhon Doe</td>
-                <td>
-                    <a class="btn btn-outline-danger" 
-                    asp-controller="Url" 
-                    asp-action="Remove"
-                    asp-route-linkIdToRemove="id">
-                    Remove</a>
-                </td>
-            </tr>
+            @foreach( var url in Model)
+            {
+                <tr>
+                    <td>@url.Id</td>
+                    <td>@url.OriginalLink</td>
+                    <td>@url.ShortLink</td>
+                    <td>@url.NrOfClicks</td>
+                    @if (User.IsInRole(Role.Admin))
+                    {
+                        <td>@(url.User != null ? url.User.FullName : "-")</td>
+                    }
+                    <td>
+                        <a class="btn btn-outline-danger"
+                           asp-controller="Url"
+                           asp-action="Remove"
+                           asp-route-linkIdToRemove="id">
+                            Remove
+                        </a>
+                    </td>
+                </tr>
+            }
+            
         </tbody>
     </table>
 </div>

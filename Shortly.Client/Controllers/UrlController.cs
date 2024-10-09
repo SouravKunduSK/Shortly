@@ -1,22 +1,42 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Shortly.Client.Data.ViewModels;
+using Shortly.Client.Helpers.Roles;
+using Shortly.Data.Models;
+using Shortly.Data.Services;
+using System.Security.Claims;
 
 namespace Shortly.Client.Controllers
 {
     public class UrlController : Controller
     {
-        public IActionResult Index()
+        private IUrlsService _urlsService;
+        private readonly IMapper _mapper;
+        public UrlController(IUrlsService urlsService, IMapper mapper)
         {
-            return View();
+            _urlsService = urlsService;
+            _mapper = mapper;
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Index()
+        {
+            var loggedInUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var isAdmin = User.IsInRole(Role.Admin);
+            var allUrls = await _urlsService.GetUrlsAsync(loggedInUserId, isAdmin);
+            var mappedAllUrls = _mapper.Map<List<Url>, List<GetUrlVM>>(allUrls);
+
+            return View(mappedAllUrls);
+        }
+
+        public async Task<IActionResult> Create()
         {
             return RedirectToAction("Index");
         }
-        
-            public IActionResult Remove(int linkIdToRemove)
+
+        public async Task<IActionResult> Remove(int id)
         {
-            return View();
+            await _urlsService.DeleteAsync(id);
+            return RedirectToAction("Index");
         }
     }
 }
