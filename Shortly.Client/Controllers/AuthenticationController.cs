@@ -9,6 +9,8 @@ using Shortly.Data;
 using Shortly.Data.Models;
 using Shortly.Data.Services;
 using System.Net.Mail;
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace Shortly.Client.Controllers
 {
@@ -167,17 +169,17 @@ namespace Shortly.Client.Controllers
             if (user != null)
             {
                 var userToken = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
+                var userConfirmationLink = Url.Action("EmailConfirmationVerified", "Authentication", new { userId = user.Id, userConfirmationToken = userToken }, Request.Scheme);
                 //3. Send the email
                 var apiKey = _configuration["SendGrid:ShortlyKey"];
                 var sendGridClient = new SendGridClient(apiKey);
                 var fromEmailAddress = new EmailAddress(_configuration["SendGrid:FromAddress"], "Shortly Client App");
                 var emailSubject = "[Shortly] Verify your account";
                 var toEmailAddress = new EmailAddress(confirmEmailLoginVM.EmailAddress);
-                var emailContentTxt = "Hello from Shortly App. Please, click this link to verify your account ";
-                var emailContentHtml = "Hello from Shortly App. Please, click this link to verify your account ";
+                var emailContentTxt = $"Hello from Shortly App. Please, click this link to verify your account: {userConfirmationLink}";
+                var emailContentHtml = $"Hello from Shortly App. Please, click this link to verify your account: <a href=\"{userConfirmationLink}\"> Verify your account </a> ";
                 var emailRequest = MailHelper.CreateSingleEmail(fromEmailAddress, toEmailAddress, emailSubject, emailContentTxt, emailContentHtml);
-                var emailResponse = sendGridClient.SendEmailAsync(emailRequest);
+                var emailResponse = await sendGridClient.SendEmailAsync(emailRequest);
                 TempData["EmailConfirmation"] = "Thank you! Please, check your email to verify your account";
                 return RedirectToAction("Index", "Home");
 
@@ -186,6 +188,63 @@ namespace Shortly.Client.Controllers
             ModelState.AddModelError("", $"Email address {confirmEmailLoginVM.EmailAddress} does not exist");
             return View("EmailConfirmation", confirmEmailLoginVM);
 
+        }
+
+        public async Task<IActionResult> EmailConfirmationVerified(string userId, string userConfirmationToken)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+            var result = await _userManager.ConfirmEmailAsync(user, userConfirmationToken);
+            TempData["EmailConfirmationVerified"] = "Thank you! Your account has been confirmed. You can now log in!";
+            return RedirectToAction("Index", "Home");
+        }
+
+
+        public async Task<IActionResult> TwoFactorConfirmation(string loggedInUserId)
+        {
+            // 1. Get the user
+            var user = await _userManager.FindByIdAsync(loggedInUserId);
+            if (user != null)
+            {
+                var userToken = await _userManager.GenerateTwoFactorTokenAsync(user, "Phone");
+                // 2. Send the SMS (set up twilio)
+                string twilioPhoneNumber = _configuration["Twilio:PhoneNumber"];
+                string twilioSID = _configuration["Twilio:SID"];
+                string twilioToken = _configuration["Twilio:Token"];
+                TwilioClient.Init(twilioSID, twilioToken);
+                var message = MessageResource.Create(
+                        body: $"This is your verification code: {userToken}",
+                        from: new Twilio.Types.PhoneNumber(twilioPhoneNumber),
+                        to: new Twilio.Types.PhoneNumber(user.PhoneNumber)
+                    );
+
+                var confirm2FALoginVM = new Confirm2FALoginVM()
+                {
+                    UserId = loggedInUserId
+                };
+                return View(confirm2FALoginVM);
+            }
+            return RedirectToAction("Index", "Home");
+        }
+
+        public async Task<IActionResult> TwoFactorConfirmationVerified(Confirm2FALoginVM confirm2FALoginVM)
+        {
+            var user = await _userManager.FindByIdAsync(confirm2FALoginVM.UserId);
+            if (user != null)
+            {
+                var tokenVerification = await _userManager.VerifyTwoFactorTokenAsync(user, "Phone", confirm2FALoginVM.UserConfirmationCode);
+                if (tokenVerification)
+                {
+                    var tokenSignIn = await _signInManager.TwoFactorSignInAsync("Phone", confirm2FALoginVM.UserConfirmationCode, false, false);
+                    if (tokenSignIn.Succeeded)
+                        return RedirectToAction("Index", "Home");
+                }
+            }
+            ModelState.AddModelError("", "Confirmation code is not correct");
+            return View(confirm2FALoginVM);
         }
     }
 }
