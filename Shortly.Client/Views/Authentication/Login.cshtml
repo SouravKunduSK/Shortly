@@ -37,8 +37,7 @@
             <div class="row pt-2">
                 <div class="col-md-8 offset-md-2">
                     <h5>External login</h5>
-
-                    @if (Convert.ToInt32(Model.Schemes?.Count()) != 0)
+                    @if (Model.Schemes != null && Model.Schemes.Count() != 0)
                     {
                         <form asp-action="ExternalLogin">
                             <div>
@@ -54,16 +53,15 @@
                                 }
                             </div>
                         </form>
-
+                        
                     }
                     else
                     {
                         <div>No external login providers have configured</div>
                     }
-
                 </div>
             </div>
-        </div>
     </div>
+</div>
 </div>
 

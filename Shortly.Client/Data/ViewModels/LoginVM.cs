@@ -15,6 +15,6 @@ namespace Shortly.Client.Data.ViewModels
         public string Password { get; set; }
 
         //Third-party login providers
-        public IEnumerable<AuthenticationScheme> Schemes { get; set; }
+        public IEnumerable<AuthenticationScheme> Schemes { get; set; } = Enumerable.Empty<AuthenticationScheme>();
     }
 }

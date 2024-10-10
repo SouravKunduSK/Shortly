@@ -58,13 +58,13 @@ builder.Services.AddScoped<IUsersService, UsersService>();
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-/*builder.Services.AddAuthentication()
+builder.Services.AddAuthentication()
     .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration["Auth:Google:ClientId"];
         options.ClientSecret = builder.Configuration["Auth:Google:ClientSecret"];
-    })
-    .AddGithub(options =>
+    });
+    /*.AddGithub(options =>
     {
         options.ClientId = builder.Configuration["Auth:GitHub:ClientId"];
         options.ClientSecret = builder.Configuration["Auth:GitHub:ClientSecret"];

@@ -9,6 +9,7 @@ using Shortly.Data;
 using Shortly.Data.Models;
 using Shortly.Data.Services;
 using System.Net.Mail;
+using System.Security.Claims;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 
@@ -40,9 +41,9 @@ namespace Shortly.Client.Controllers
         
         public async Task<IActionResult> Login()
         {
-             var loginVM = new LoginVM()
-             {
-                 Schemes = await _signInManager.GetExternalAuthenticationSchemesAsync()
+            var loginVM = new LoginVM()
+            {
+                Schemes = await _signInManager.GetExternalAuthenticationSchemesAsync()
              };
 
             return View(loginVM);
@@ -245,6 +246,58 @@ namespace Shortly.Client.Controllers
             }
             ModelState.AddModelError("", "Confirmation code is not correct");
             return View(confirm2FALoginVM);
+        }
+
+        public IActionResult ExternalLogin(string provider, string returnUrl = "")
+        {
+            var redirectUrl = Url.Action("ExternalLoginCallback", "Authentication", new { ReturnUrl = returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return new ChallengeResult(provider, properties);
+        }
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = "", string remoteError = "")
+        {
+            var loginVM = new LoginVM()
+            {
+                Schemes = await _signInManager.GetExternalAuthenticationSchemesAsync()
+            };
+            if (!string.IsNullOrEmpty(remoteError))
+            {
+                ModelState.AddModelError("", $"Error from extranal login provide: {remoteError}");
+                return View("Login", loginVM);
+            }
+            //Get login info
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                ModelState.AddModelError("", $"Error from extranal login provide: {remoteError}");
+                return View("Login", loginVM);
+            }
+            var signInResult = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            if (signInResult.Succeeded)
+                return RedirectToAction("Index", "Home");
+            else
+            {
+                var userEmail = info.Principal.FindFirstValue(ClaimTypes.Email);
+                if (!string.IsNullOrEmpty(userEmail))
+                {
+                    var user = await _userManager.FindByEmailAsync(userEmail);
+                    if (user == null)
+                    {
+                        user = new AppUser()
+                        {
+                            UserName = userEmail,
+                            Email = userEmail,
+                            EmailConfirmed = true
+                        };
+                        await _userManager.CreateAsync(user);
+                        await _userManager.AddToRoleAsync(user, Role.User);
+                    }
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+            ModelState.AddModelError("", $"Something went wrong");
+            return View("Login", loginVM);
         }
     }
 }
