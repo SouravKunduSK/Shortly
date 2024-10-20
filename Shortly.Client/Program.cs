@@ -63,12 +63,12 @@ builder.Services.AddAuthentication()
     {
         options.ClientId = builder.Configuration["Auth:Google:ClientId"];
         options.ClientSecret = builder.Configuration["Auth:Google:ClientSecret"];
-    });
-    /*.AddGithub(options =>
+    })
+    .AddGitHub(options =>
     {
         options.ClientId = builder.Configuration["Auth:GitHub:ClientId"];
         options.ClientSecret = builder.Configuration["Auth:GitHub:ClientSecret"];
-    });*/
+    });
 
 var app = builder.Build();
 

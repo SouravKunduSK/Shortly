@@ -42,8 +42,15 @@ namespace Shortly.Data.Services
 
         public async Task<Url> GetOriginalUrlAsync(string shortUrl)
         {
-            var dbUrl = await _context.Urls.FindAsync(shortUrl);
+            var dbUrl = await _context.Urls.FirstOrDefaultAsync(n => n.ShortLink == shortUrl);
             return dbUrl;
+        }
+
+        public async Task IncrementNumberOfClicksAsync(int shortUrlId)
+        {
+            var dbUrl = await _context.Urls.FirstOrDefaultAsync(n => n.Id == shortUrlId);
+            dbUrl.NrOfClicks++;
+            await _context.SaveChangesAsync();
         }
 
         public async Task<List<Url>> GetUrlsAsync(string userId, bool isAdmin)
@@ -60,14 +67,7 @@ namespace Shortly.Data.Services
             }
         }
 
-        public async Task IncrementNumberOfClicksAsync(int shortUrlId)
-        {
-            var dbUrl = await _context.Urls.FindAsync(shortUrlId);
-            dbUrl.NrOfClicks++;
-            await _context.SaveChangesAsync();
-
-        }
-
+       
         public async Task<Url> UpdateAsync(int id, Url url)
         {
             var urlDb = await _context.Urls.FindAsync(id);
